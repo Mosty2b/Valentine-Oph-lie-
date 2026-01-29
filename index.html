@@ -1,314 +1,842 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ophélie 💌</title>
-    <style>
-        :root {
-            --primary: #ff4d6d;
-            --primary-dark: #c9184a;
-            --paper: #fefcf8;
-            --seal: #b01a2d;
-            --text-main: #3d000d;
-            --text-muted: #8a5a65;
-            --font-serif: "Iowan Old Style", "Apple Garamond", "Palatino", "Georgia", serif;
-            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            --shadow-soft: 0 20px 50px rgba(0,0,0,0.08);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Ophélie 💌</title>
+  <style>
+    :root{
+      --bg1:#fff5f7;
+      --bg2:#fff0f4;
+      --primary:#ff4d6d;
+      --primary-dark:#c9184a;
+      --paper:#fefcf8;
+      --seal:#b01a2d;
+      --text:#3d000d;
+      --muted:#8a5a65;
+      --shadow: 0 20px 50px rgba(0,0,0,0.08);
+      --shadow2: 0 12px 30px rgba(0,0,0,0.06);
+      --serif: "Iowan Old Style","Apple Garamond","Palatino","Georgia",serif;
+      --sans: -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,sans-serif;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        body {
-            font-family: var(--font-sans);
-            background: #fff5f7;
-            height: 100vh;
-            height: 100svh;
-            width: 100vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            color: var(--text-main);
-        }
+    html,body{
+      height:100%;
+      margin:0;
+      background: radial-gradient(1200px 800px at 30% 20%, var(--bg2), var(--bg1));
+      color:var(--text);
+      overflow:hidden;
+      font-family:var(--sans);
+    }
 
-        #bg-elements {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
-        }
+    /* Fix tactile iOS */
+    body{
+      touch-action: manipulation;
+      overscroll-behavior: none;
+    }
 
-        /* --- STAGE: ENVELOPPE --- */
-        #stage-intro {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    .center{
+      position:relative;
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+    }
 
-        .intro-text {
-            font-family: var(--font-serif);
-            font-style: italic;
-            margin-bottom: 2rem;
-            font-size: 1.4rem;
-            color: var(--text-muted);
-            opacity: 0;
-            animation: fadeIn 1.5s forwards 0.5s;
-        }
+    /* Décor */
+    #bg{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:0;
+      overflow:hidden;
+    }
+    .float-heart{
+      position:absolute;
+      width: 14px; height: 14px;
+      transform: rotate(45deg);
+      opacity:0.12;
+      background: var(--primary);
+      border-radius: 3px;
+      filter: blur(0.2px);
+      animation: drift 12s linear infinite;
+    }
+    .float-heart::before,.float-heart::after{
+      content:"";
+      position:absolute;
+      width: 14px; height: 14px;
+      background: var(--primary);
+      border-radius:50%;
+    }
+    .float-heart::before{ left:-7px; top:0; }
+    .float-heart::after{ top:-7px; left:0; }
 
-        .envelope-wrapper {
-            width: 300px;
-            height: 200px;
-            background: #fff;
-            position: relative;
-            box-shadow: var(--shadow-soft);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .envelope-wrapper:active { transform: scale(0.96); }
+    @keyframes drift{
+      0%{ transform: translateY(40vh) rotate(45deg); }
+      100%{ transform: translateY(-60vh) rotate(45deg); }
+    }
 
-        .envelope-flap {
-            position: absolute;
-            top: 0; left: 0; width: 0; height: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 100px solid #f9f9f9;
-            z-index: 3;
-            transform-origin: top;
-            transition: transform 0.6s ease;
-        }
+    /* Stages */
+    .stage{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index: 5;
+      transition: opacity .6s ease, transform .6s cubic-bezier(.2,1,.3,1);
+      will-change: opacity, transform;
+    }
+    .stage.hidden{
+      opacity:0;
+      transform: translateY(18px) scale(0.98);
+      pointer-events:none;
+    }
 
-        .envelope-body {
-            position: absolute;
-            bottom: 0; left: 0; width: 300px; height: 200px;
-            background: #fff;
-            z-index: 1;
-            border: 1px solid rgba(0,0,0,0.02);
-        }
+    /* Intro: enveloppe */
+    .intro-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 18px;
+    }
+    .intro-text{
+      font-family:var(--serif);
+      font-style:italic;
+      color:var(--muted);
+      opacity:0;
+      transform: translateY(6px);
+      animation: introFade 1.2s ease forwards .35s;
+      font-size: clamp(1.1rem, 3.8vw, 1.4rem);
+      text-align:center;
+    }
+    @keyframes introFade{
+      to{ opacity:1; transform: translateY(0); }
+    }
 
-        .wax-seal {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 60px; height: 60px;
-            background: var(--seal);
-            border-radius: 50%;
-            z-index: 4;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            animation: sealPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 1s;
-        }
-        .wax-seal svg { fill: white; width: 30px; height: 30px; }
+    .envelope{
+      width: 300px;
+      height: 200px;
+      position:relative;
+      border-radius: 10px;
+      background:#fff;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-user-select:none;
+      transform: translateZ(0);
+      touch-action: manipulation;
+    }
+    .envelope:active{ transform: scale(0.985); }
 
-        /* --- STAGE: LETTRE --- */
-        #stage-letter {
-            position: absolute;
-            z-index: 20;
-            width: 90%;
-            max-width: 450px;
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-            pointer-events: none;
-            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-        }
+    .env-body{
+      position:absolute; inset:0;
+      border-radius:10px;
+      border: 1px solid rgba(0,0,0,0.03);
+      background: linear-gradient(180deg, #ffffff, #fff8fb);
+      z-index: 1;
+      overflow:hidden;
+    }
 
-        .letter-paper {
-            background: var(--paper);
-            padding: 3.5rem 2rem;
-            border-radius: 4px;
-            box-shadow: 
-                0 10px 30px rgba(0,0,0,0.05),
-                inset 0 0 100px rgba(230, 210, 180, 0.1);
-            position: relative;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-        /* Effet bords irréguliers */
-        .letter-paper::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.02);
-            pointer-events: none;
-        }
+    .env-flap{
+      position:absolute;
+      top:0; left:0;
+      width:0; height:0;
+      border-left:150px solid transparent;
+      border-right:150px solid transparent;
+      border-top:100px solid #f9f9f9;
+      transform-origin: top;
+      transform: rotateX(0deg);
+      transition: transform .6s cubic-bezier(.2,1,.3,1);
+      z-index: 3;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.06));
+    }
 
-        .letter-content h2 {
-            font-family: var(--font-serif);
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            font-size: 1.2rem;
-            color: var(--text-muted);
-        }
+    .env-letter{
+      position:absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 16px;
+      height: 160px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, var(--paper), #fff7f9);
+      box-shadow: var(--shadow2);
+      z-index:2;
+      transform: translateY(80px);
+      transition: transform .8s cubic-bezier(.2,1,.3,1);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .env-letter::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(800px 220px at 30% 0%, rgba(255,77,109,0.05), transparent 55%),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.012) 0, rgba(0,0,0,0.012) 1px, transparent 1px, transparent 10px);
+      opacity: 0.55;
+      mix-blend-mode: multiply;
+      border-radius: 6px;
+    }
 
-        .letter-content .question {
-            font-family: var(--font-serif);
-            font-size: clamp(1.6rem, 6vw, 2.2rem);
-            line-height: 1.2;
-            margin-bottom: 3rem;
-            font-weight: 600;
-        }
+    .seal{
+      position:absolute;
+      left:50%; top:52%;
+      width: 62px; height: 62px;
+      transform: translate(-50%,-50%) scale(0);
+      background: radial-gradient(circle at 35% 30%, #d62839, var(--seal));
+      border-radius: 50%;
+      z-index: 4;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.25);
+      animation: sealPop .85s cubic-bezier(.175,.885,.32,1.275) forwards .9s;
+      pointer-events:none;
+    }
+    @keyframes sealPop{
+      to{ transform: translate(-50%,-50%) scale(1); }
+    }
+    .seal svg{ width: 30px; height:30px; fill: #fff; opacity: 0.95; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18)); }
 
-        .signature {
-            font-family: var(--font-serif);
-            margin-top: 4rem;
-            font-style: italic;
-            text-align: right;
-            color: var(--text-muted);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-top: 1rem;
-        }
+    /* Envelope open state */
+    .envelope.open .env-flap{ transform: rotateX(160deg); }
+    .envelope.open .env-letter{ transform: translateY(-16px); }
 
-        /* --- BUTTONS --- */
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: center;
-            min-height: 150px;
-            margin-top: 2rem;
-        }
+    /* Lettre */
+    .letter-card{
+      width: min(460px, 92vw);
+      background: var(--paper);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.03);
+      position:relative;
+      padding: 34px 22px 22px;
+      overflow:hidden;
+      transform: translateZ(0);
+    }
+    .letter-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 260px at 30% 0%, rgba(255,77,109,0.06), transparent 55%),
+        radial-gradient(700px 300px at 80% 30%, rgba(255,77,109,0.03), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.012) 0, rgba(0,0,0,0.012) 1px, transparent 1px, transparent 12px);
+      opacity: 0.8;
+      mix-blend-mode: multiply;
+    }
 
-        button {
-            padding: 1rem 3rem;
-            border-radius: 100px;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            -webkit-appearance: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
+    .dear{
+      font-family: var(--serif);
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0 0 18px;
+      position:relative;
+      z-index:1;
+    }
 
-        #btn-yes {
-            background: var(--primary);
-            color: white;
-            z-index: 100;
-        }
+    .question{
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: clamp(1.55rem, 6vw, 2.15rem);
+      line-height: 1.18;
+      margin: 0 0 18px;
+      position:relative;
+      z-index:1;
+    }
 
-        #btn-no {
-            background: #fff;
-            color: var(--primary);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-            z-index: 99;
-        }
+    .btns{
+      margin-top: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      align-items:center;
+      min-height: 150px;
+      position:relative;
+      z-index:2;
+    }
 
-        /* --- STAGE: SUCCESS --- */
-        #stage-success {
-            position: absolute;
-            z-index: 30;
-            opacity: 0;
-            pointer-events: none;
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            transition: opacity 0.6s ease;
-        }
+    button{
+      -webkit-appearance:none;
+      appearance:none;
+      border:none;
+      border-radius: 999px;
+      padding: 14px 28px;
+      font-size: 1.08rem;
+      font-weight: 800;
+      cursor:pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      transform: translateZ(0);
+      touch-action: manipulation;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    button:focus{ outline: none; box-shadow: 0 0 0 3px rgba(255,77,109,0.25), 0 6px 18px rgba(0,0,0,0.06); }
 
-        /* --- HACK ANIMATION --- */
-        #glitch-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: black;
-            z-index: 1000;
-            display: none;
-            color: #0f0;
-            font-family: monospace;
-            padding: 20px;
-            overflow: hidden;
-        }
+    #yes{
+      background: var(--primary);
+      color:#fff;
+      transition: transform .22s ease, filter .22s ease;
+      will-change: transform;
+    }
+    #yes:active{ filter: brightness(0.96); }
 
-        .glitch-text {
-            animation: glitch 0.2s infinite;
-        }
+    #no{
+      background:#fff;
+      color: var(--primary);
+      border: 1px solid rgba(255,77,109,0.22);
+      transition: transform .18s ease;
+      will-change: transform, left, top;
+    }
+    #no:active{ transform: scale(0.99); }
 
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-5px, 5px); }
-            40% { transform: translate(-5px, -5px); }
-            60% { transform: translate(5px, 5px); }
-            80% { transform: translate(5px, -5px); }
-            100% { transform: translate(0); }
-        }
+    .counter{
+      font-size: 0.78rem;
+      color: var(--muted);
+      opacity: 0.6;
+      margin-top: 4px;
+      min-height: 16px;
+      text-align:center;
+    }
 
-        @keyframes sealPop {
-            to { transform: translate(-50%, -50%) scale(1); }
-        }
+    .sign{
+      margin-top: 26px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--muted);
+      text-align:right;
+      position:relative;
+      z-index:1;
+    }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
+    /* Success */
+    .success-card{
+      width: min(420px, 92vw);
+      text-align:center;
+      padding: 28px 20px 18px;
+    }
+    .success-card h1{
+      font-family: var(--serif);
+      margin: 10px 0 10px;
+      font-size: 2rem;
+    }
+    .success-card p{
+      font-family: var(--serif);
+      margin: 0;
+      line-height: 1.55;
+      font-size: 1.15rem;
+    }
+    .restart{
+      margin-top: 20px;
+      background: transparent;
+      border: 1px solid rgba(138,90,101,0.55);
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 10px 18px;
+      box-shadow:none;
+    }
 
-        .hidden { display: none !important; }
+    /* Confetti hearts canvas */
+    #confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index: 80;
+      display:none;
+    }
 
-        .disclaimer {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 10px;
-            color: #444;
-            opacity: 0.6;
-        }
-    </style>
+    /* Hack overlay */
+    #hack{
+      position:fixed;
+      inset:0;
+      z-index: 999;
+      display:none;
+      background: #020202;
+      color: #7CFF90;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      overflow:hidden;
+      padding: 18px;
+    }
+    #hack .scan{
+      position:absolute; inset:0;
+      pointer-events:none;
+      background:
+        repeating-linear-gradient(180deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
+      opacity:0.15;
+      mix-blend-mode: screen;
+      animation: scanMove .25s linear infinite;
+    }
+    @keyframes scanMove{
+      from{ transform: translateY(0); }
+      to{ transform: translateY(6px); }
+    }
+    #hack .flash{
+      position:absolute; inset:0;
+      pointer-events:none;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: translateX(-120%);
+      animation: flashSweep .22s linear infinite;
+      opacity: 0.9;
+      mix-blend-mode: screen;
+    }
+    @keyframes flashSweep{
+      to{ transform: translateX(120%); }
+    }
+    #hack .terminal{
+      position:relative;
+      z-index:2;
+      height: calc(100% - 46px);
+      overflow:hidden;
+      white-space:pre-wrap;
+      line-height: 1.25;
+      font-size: 13px;
+      text-shadow: 0 0 10px rgba(124,255,144,0.15);
+      animation: jitter .10s infinite;
+    }
+    @keyframes jitter{
+      0%{ transform: translate(0,0); }
+      20%{ transform: translate(-1px,1px); }
+      40%{ transform: translate(1px,-1px); }
+      60%{ transform: translate(2px,1px); }
+      80%{ transform: translate(-2px,-1px); }
+      100%{ transform: translate(0,0); }
+    }
+    #hack .note{
+      position:absolute;
+      left: 0; right: 0; bottom: 10px;
+      text-align:center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      z-index:3;
+      padding: 0 10px;
+    }
+
+    /* Utility */
+    .sr-only{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+  </style>
 </head>
+
 <body>
-    <div id="bg-elements"></div>
+  <div id="bg" aria-hidden="true"></div>
 
-    <!-- INITIAL STAGE: ENVELOPE -->
-    <div id="stage-intro">
-        <p class="intro-text">Ouvre la lettre 💌</p>
-        <div class="envelope-wrapper" id="envelope">
-            <div class="envelope-flap" id="flap"></div>
-            <div class="envelope-body"></div>
-            <div class="wax-seal">
-                <svg viewBox="0 0 24 24"><path d="M12.1,18.55L12,18.65L11.89,18.55C7.14,14.24 4,11.39 4,8.5C4,6.5 5.5,5 7.5,5C8.64,5 9.74,5.54 10.4,6.45L12,8.45L13.6,6.45C14.26,5.54 15.36,5 16.5,5C18.5,5 20,6.5 20,8.5C20,11.39 16.86,14.24 12.1,18.55M16.5,3C14.76,3 13.09,3.81 12,5.08C10.91,3.81 9.24,3 7.5,3C4.42,3 2,5.41 2,8.5C2,12.27 5.4,15.36 10.55,20.03L12,21.35L13.45,20.03C18.6,15.36 22,12.27 22,8.5C22,5.41 19.58,3 16.5,3Z"/></svg>
-            </div>
+  <canvas id="confetti"></canvas>
+
+  <div class="center">
+    <!-- INTRO -->
+    <section id="stageIntro" class="stage">
+      <div class="intro-wrap">
+        <div class="intro-text">Ouvre la lettre 💌</div>
+
+        <div id="envelope" class="envelope" role="button" aria-label="Ouvrir la lettre" tabindex="0">
+          <div class="env-body"></div>
+          <div class="env-letter" aria-hidden="true"></div>
+          <div id="flap" class="env-flap" aria-hidden="true"></div>
+
+          <div class="seal" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12.1,18.55L12,18.65L11.89,18.55C7.14,14.24 4,11.39 4,8.5C4,6.5 5.5,5 7.5,5C8.64,5 9.74,5.54 10.4,6.45L12,8.45L13.6,6.45C14.26,5.54 15.36,5 16.5,5C18.5,5 20,6.5 20,8.5C20,11.39 16.86,14.24 12.1,18.55M16.5,3C14.76,3 13.09,3.81 12,5.08C10.91,3.81 9.24,3 7.5,3C4.42,3 2,5.41 2,8.5C2,12.27 5.4,15.36 10.55,20.03L12,21.35L13.45,20.03C18.6,15.36 22,12.27 22,8.5C22,5.41 19.58,3 16.5,3Z"/>
+            </svg>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <!-- MAIN STAGE: LETTER -->
-    <div id="stage-letter">
-        <div class="letter-paper">
-            <div class="letter-content">
-                <h2>Chère Ophélie,</h2>
-                <p class="question">Veux-tu être ma Valentine ? 💘</p>
-                
-                <div class="btn-group">
-                    <button id="btn-yes">Oui 💖</button>
-                    <button id="btn-no">Non 🙃</button>
-                    <div id="counter" style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.5; margin-top: 10px;"></div>
-                </div>
+    <!-- LETTER -->
+    <section id="stageLetter" class="stage hidden" aria-live="polite">
+      <div class="letter-card">
+        <p class="dear">Chère Ophélie,</p>
+        <p class="question">Veux-tu être ma Valentine ? 💘</p>
 
-                <p class="signature">L’amour de ta vie, Baptiste</p>
-            </div>
+        <div class="btns">
+          <button id="yes" type="button">Oui 💖</button>
+          <button id="no" type="button">Non 🙃</button>
+          <div id="counter" class="counter"></div>
         </div>
-    </div>
 
-    <!-- FINAL STAGE: SUCCESS -->
-    <div id="stage-success">
-        <span style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">🎉💕🌹</span>
-        <h1 style="font-family: var(--font-serif); margin-bottom: 1rem;">Merveilleux !</h1>
-        <p style="font-family: var(--font-serif); line-height: 1.6; font-size: 1.2rem; color: var(--text-main);">
-            Je t’aime Ophélie. Merci d’être toi. J’ai trop hâte de créer des souvenirs avec toi. 💕
-        </p>
-        <button id="btn-restart" style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); margin-top: 3rem; font-size: 0.8rem; padding: 0.6rem 1.5rem;">Recommencer</button>
-    </div>
+        <div class="sign">L’amour de ta vie, Baptiste</div>
+      </div>
+    </section>
 
-    <!-- OVERLAYS -->
-    <div id="glitch-overlay">
-        <div id="terminal"></div>
-        <div class="disclaimer">(Ceci est une animation, aucune action réelle.)</div>
-    </div>
+    <!-- SUCCESS -->
+    <section id="stageSuccess" class="stage hidden">
+      <div class="letter-card success-card">
+        <div style="font-size:3.2rem;">🎉💕🌹</div>
+        <h1>Merveilleux !</h1>
+        <p>Je t’aime Ophélie. Merci d’être toi. J’ai trop hâte de créer des souvenirs avec toi. 💕</p>
+        <button id="restart" class="restart" type="button">Recommencer</button>
+      </div>
+    </section>
+  </div>
 
-    <script type="module" src="index.tsx"></script>
+  <!-- HACK OVERLAY (visuel) -->
+  <div id="hack" aria-hidden="true">
+    <div class="scan"></div>
+    <div class="flash"></div>
+    <div id="terminal" class="terminal"></div>
+    <div class="note">(Ceci est une animation, aucune action réelle.)</div>
+  </div>
+
+  <script>
+    // =========================
+    // VARIABLES FACILES À MODIFIER
+    // =========================
+    const CONFIG = {
+      name: "Ophélie",
+      maxTries: 10,
+      yesGrowStep: 0.2, // <= 0.2 (demande user)
+      yesGrowMax: 10,   // sécurité (même si on limite les essais)
+      hackDurationMs: 1400,
+      terminalSpeedMs: 35,
+    };
+
+    // =========================
+    // Helpers tactile (iOS safe)
+    // =========================
+    function onTap(el, handler) {
+      if (!el) return;
+
+      // Pointer Events = souris + tactile
+      el.addEventListener("pointerdown", (e) => {
+        // Sur iOS, pointerdown marche bien si on évite les scroll/zoom involontaires
+        e.preventDefault();
+        handler(e);
+      }, { passive: false });
+
+      // Fallback click (certains contextes)
+      el.addEventListener("click", (e) => handler(e), { passive: true });
+
+      // Access clavier (enveloppe role=button)
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handler(e);
+        }
+      });
+    }
+
+    const $ = (s) => document.querySelector(s);
+
+    const bg = $("#bg");
+    const stageIntro = $("#stageIntro");
+    const stageLetter = $("#stageLetter");
+    const stageSuccess = $("#stageSuccess");
+
+    const envelope = $("#envelope");
+    const yesBtn = $("#yes");
+    const noBtn = $("#no");
+    const counter = $("#counter");
+    const restartBtn = $("#restart");
+
+    const hack = $("#hack");
+    const terminal = $("#terminal");
+    const confettiCanvas = $("#confetti");
+    const ctx = confettiCanvas.getContext("2d");
+
+    let tries = 0;
+    let yesScale = 1;
+
+    // =========================
+    // Background hearts
+    // =========================
+    function spawnBgHearts() {
+      const n = 10;
+      for (let i = 0; i < n; i++) {
+        const h = document.createElement("div");
+        h.className = "float-heart";
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.top = (60 + Math.random() * 60) + "vh";
+        h.style.animationDuration = (10 + Math.random()*10) + "s";
+        h.style.animationDelay = (-Math.random()*10) + "s";
+        h.style.transform = `rotate(45deg) scale(${0.7 + Math.random()*1.2})`;
+        bg.appendChild(h);
+      }
+    }
+
+    // =========================
+    // Stage transitions
+    // =========================
+    function showStage(stageToShow) {
+      [stageIntro, stageLetter, stageSuccess].forEach(st => {
+        if (st === stageToShow) st.classList.remove("hidden");
+        else st.classList.add("hidden");
+      });
+    }
+
+    // =========================
+    // Envelope -> letter
+    // =========================
+    function openEnvelope() {
+      envelope.classList.add("open");
+      // petit délai pour laisser l’anim se voir
+      setTimeout(() => {
+        showStage(stageLetter);
+        // active les interactions en s'assurant que le stage lettre est "devant"
+        tries = 0;
+        yesScale = 1;
+        yesBtn.style.transform = `scale(${yesScale})`;
+        counter.textContent = "";
+      }, 650);
+    }
+
+    // =========================
+    // NO logic: grow yes slowly, move no a bit
+    // =========================
+    function handleNo() {
+      tries += 1;
+      counter.textContent = `Tentative : ${tries}/${CONFIG.maxTries}`;
+
+      // Grow YES slowly (<= 0.2 per try)
+      yesScale = Math.min(yesScale + CONFIG.yesGrowStep, CONFIG.yesGrowMax);
+      yesBtn.style.transform = `scale(${yesScale})`;
+
+      // Move NO a bit but keep clickable and on-screen
+      // We move within the letter-card area.
+      const card = stageLetter.querySelector(".letter-card");
+      const cardRect = card.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+
+      const pad = 16;
+      const maxX = cardRect.width - noRect.width - pad*2;
+      const maxY = 120; // keep it around buttons zone
+
+      const x = pad + Math.random() * Math.max(0, maxX);
+      const y = (cardRect.height * 0.48) + (Math.random() * maxY - maxY/2);
+
+      noBtn.style.position = "absolute";
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${Math.max(80, Math.min(y, cardRect.height - noRect.height - pad))}px`;
+
+      // If reached max tries -> hack sequence then force YES
+      if (tries >= CONFIG.maxTries) {
+        runHackSequence().then(() => {
+          forceYes();
+        });
+      }
+    }
+
+    // =========================
+    // YES -> success
+    // =========================
+    function forceYes() {
+      showStage(stageSuccess);
+      launchConfettiHearts(2400);
+    }
+
+    function handleYes() {
+      showStage(stageSuccess);
+      launchConfettiHearts(2400);
+    }
+
+    // =========================
+    // Hack overlay (fast/aggressive visual)
+    // =========================
+    function runHackSequence() {
+      return new Promise((resolve) => {
+        hack.style.display = "block";
+        hack.setAttribute("aria-hidden", "false");
+
+        terminal.textContent = "";
+        const lines = [
+          "CUPID_OVERRIDE:// init…",
+          "Scanning heart signal… OK",
+          "Injecting romance patch… OK",
+          "Bypassing 'Non' handler…",
+          "FORCING RESPONSE => YES",
+          "Commit… DONE",
+        ];
+
+        let i = 0;
+        let j = 0;
+        let current = "";
+        let startedAt = performance.now();
+
+        const tick = () => {
+          const now = performance.now();
+          if (now - startedAt > CONFIG.hackDurationMs) {
+            // finish fast
+            terminal.textContent += "\n\n>> OVERRIDE COMPLETE.";
+            setTimeout(() => {
+              hack.style.display = "none";
+              hack.setAttribute("aria-hidden", "true");
+              resolve();
+            }, 220);
+            return;
+          }
+
+          // very fast typing effect
+          if (i < lines.length) {
+            const line = lines[i];
+            if (j < line.length) {
+              current += line[j++];
+              terminal.textContent = terminal.textContent.split("\n").slice(-18).join("\n"); // keep short
+              terminal.textContent += (terminal.textContent ? "" : "") ;
+              // render current line
+              const parts = terminal.textContent.split("\n");
+              // Replace last line or append
+              if (parts.length === 0) {
+                terminal.textContent = current;
+              } else {
+                const base = terminal.textContent.split("\n");
+                if (base.length === 0) {
+                  terminal.textContent = current;
+                } else {
+                  // ensure last line is current
+                  const all = terminal.textContent.split("\n");
+                  // if we already appended i lines, rewrite last line
+                  if (all.length < i + 1) {
+                    terminal.textContent += (terminal.textContent ? "\n" : "") + current;
+                  } else {
+                    all[i] = current;
+                    terminal.textContent = all.join("\n");
+                  }
+                }
+              }
+            } else {
+              // next line
+              i++;
+              j = 0;
+              current = "";
+              terminal.textContent += "\n";
+            }
+          } else {
+            // spam extra "packets"
+            terminal.textContent += `\npacket_${Math.floor(Math.random()*9999)}: ${Math.random().toString(16).slice(2,10)} OK`;
+            terminal.textContent = terminal.textContent.split("\n").slice(-20).join("\n");
+          }
+
+          setTimeout(tick, CONFIG.terminalSpeedMs);
+        };
+
+        // Start with instant burst
+        terminal.textContent = ">>> START\n";
+        setTimeout(tick, 30);
+      });
+    }
+
+    // =========================
+    // Confetti hearts (canvas)
+    // =========================
+    function resizeCanvas() {
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+      confettiCanvas.style.width = window.innerWidth + "px";
+      confettiCanvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    function drawHeart(x, y, s, rot, alpha) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "#ff4d6d";
+      ctx.beginPath();
+      // Simple heart path
+      ctx.moveTo(0, -s*0.2);
+      ctx.bezierCurveTo(s*0.6, -s*0.9, s*1.2, -s*0.1, 0, s*0.9);
+      ctx.bezierCurveTo(-s*1.2, -s*0.1, -s*0.6, -s*0.9, 0, -s*0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function launchConfettiHearts(durationMs=2500) {
+      resizeCanvas();
+      confettiCanvas.style.display = "block";
+
+      const particles = Array.from({length: 42}, () => ({
+        x: Math.random() * window.innerWidth,
+        y: -20 - Math.random()*200,
+        vy: 2 + Math.random()*4,
+        vx: -1.2 + Math.random()*2.4,
+        s: 6 + Math.random()*10,
+        rot: Math.random()*Math.PI,
+        vr: -0.08 + Math.random()*0.16,
+        alpha: 0.7 + Math.random()*0.3
+      }));
+
+      const start = performance.now();
+      const step = (t) => {
+        const elapsed = t - start;
+        ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+          // wrap
+          if (p.y > window.innerHeight + 40) {
+            p.y = -20;
+            p.x = Math.random() * window.innerWidth;
+          }
+          drawHeart(p.x, p.y, p.s, p.rot, p.alpha);
+        });
+
+        if (elapsed < durationMs) {
+          requestAnimationFrame(step);
+        } else {
+          ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+          confettiCanvas.style.display = "none";
+        }
+      };
+      requestAnimationFrame(step);
+    }
+
+    // =========================
+    // Restart
+    // =========================
+    function restart() {
+      // reset NO button position
+      noBtn.style.position = "";
+      noBtn.style.left = "";
+      noBtn.style.top = "";
+      tries = 0;
+      yesScale = 1;
+      yesBtn.style.transform = `scale(${yesScale})`;
+      counter.textContent = "";
+      envelope.classList.remove("open");
+      showStage(stageIntro);
+    }
+
+    // =========================
+    // Init + bindings
+    // =========================
+    function init() {
+      spawnBgHearts();
+      showStage(stageIntro);
+
+      // Envelope open (tactile OK)
+      onTap(envelope, openEnvelope);
+
+      // Yes/No (tactile OK)
+      onTap(yesBtn, handleYes);
+      onTap(noBtn, handleNo);
+
+      onTap(restartBtn, restart);
+
+      // Resize
+      window.addEventListener("resize", () => {
+        // only needed for confetti
+        if (confettiCanvas.style.display === "block") resizeCanvas();
+      }, { passive: true });
+    }
+
+    init();
+  </script>
 </body>
 </html>
